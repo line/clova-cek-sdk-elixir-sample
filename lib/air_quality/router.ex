@@ -3,7 +3,11 @@ defmodule AirQuality.Router do
   use Plug.ErrorHandler
 
   plug Plug.Logger
-  plug Plug.Parsers, parsers: [Clova.Parser]
+
+  plug Plug.Parsers,
+    parsers: [:json],
+    json_decoder: Poison,
+    body_reader: Clova.CachingBodyReader.spec()
 
   plug Clova.Validator,
     app_id: "com.line-apps.air_quality",

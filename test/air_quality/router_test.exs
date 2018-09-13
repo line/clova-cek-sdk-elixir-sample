@@ -7,7 +7,7 @@ defmodule RouterTest do
 
   @signature "KHbJrrWcIvGjHFj8cvVtugNMcRUkYhGNw6MaGjS81h/JJd2pgsgNCevmLMpiyjpm5vQq3sZrajLiD6kUKvYAeAxdH5ICr3GbdrqJYKVwQm2pxIdImdnBealwf528czuOKO21IFDAQRdmJG6B5Cxx8/0VtALX3vqT/pywA0LaeggmpOFuOjaDGpJ0tpAUKjVv+H7O5/yX6X9IFvj1nxP+thcMTNlY5MFbO0mjXvRzZjqerD1kapRIHlTD4kZyc/0OtUWR7qFvujSsarkZbfTvT+WwqJsKqDIRWAtH8c/cnfs/quZwuXm+80o7ZKJm0u5rp+sHt4XKTP1BL+iamr2A/A=="
 
-  test "Post to /clova is without signature returns 403" do
+  test "Post to /clova without signature returns 403" do
     conn = conn(:post, "/clova", @json) |> put_req_header("content-type", "application/json")
 
     conn = AirQuality.Router.call(conn, [])

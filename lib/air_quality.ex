@@ -12,16 +12,14 @@ defmodule AirQuality do
     city = get_slot(request, "city")
     IO.inspect(city, label: "requested city")
 
-    if city == nil do
-      handle_launch(request, response)
-    else
+    if city do
       case @aicqn_api.search(city) do
         :empty ->
           add_speech(response, "すみません#{city}の情報を見つけられませんでした。")
 
         {:ok, aqicn = %AICQN{}} ->
           explanation =
-            case Map.get(request.session.sessionAttributes, "detailedMode") do
+            case session_attributes(request)["detailedMode"] do
               true -> aqicn.implications
               _ -> aqicn.level
             end
@@ -30,6 +28,9 @@ defmodule AirQuality do
           |> add_speech("#{aqicn.station}市の大気汚染は#{explanation}です。たいきしつ指数は#{aqicn.aqi}です。")
           |> end_session
       end
+    else
+      response = add_speech(response, "すみません。街の名前をわかりませんでした。")
+      handle_launch(request, response)
     end
   end
 

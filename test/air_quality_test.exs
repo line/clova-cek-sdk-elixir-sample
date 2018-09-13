@@ -1,10 +1,10 @@
 defmodule AirQualityTest do
   use ExUnit.Case
   doctest AirQuality
-  alias Clova.{Request, Response}
+  alias Clova.Response
 
   test "handle_launch creates launch response" do
-    envelope = AirQuality.handle_launch(%Request{}, %Response{})
+    envelope = AirQuality.handle_launch(nil, %Response{})
     assert envelope.response.outputSpeech.values.value == "大気汚染を知りたい都市名を言ってください"
   end
 
@@ -15,51 +15,45 @@ defmodule AirQualityTest do
     assert speech2.value == "大気汚染を知りたい都市名を言ってください"
   end
 
-  test "handle_intent creates launch response if no city provided" do
-    request_envelope = make_request(nil)
+  test "handle_intent complains and creates launch response if no city provided" do
+    request = make_request(nil)
 
-    response_envelope =
-      AirQuality.handle_intent("particulateMatter", request_envelope, %Response{})
+    response = AirQuality.handle_intent("particulateMatter", request, %Response{})
 
-    assert response_envelope.response.outputSpeech.values.value == "大気汚染を知りたい都市名を言ってください"
+    [error, launch] = response.response.outputSpeech.values
+    assert error.value === "すみません。街の名前をわかりませんでした。"
+    assert launch.value === "大気汚染を知りたい都市名を言ってください"
   end
 
   test "handle_intent gets the polution level for a known city" do
-    request_envelope = make_request(%{"city" => %{"name" => "city", "value" => "known"}})
+    request = make_request(%{"city" => %{"name" => "city", "value" => "known"}})
+    response = AirQuality.handle_intent("particulateMatter", request, %Response{})
 
-    response_envelope =
-      AirQuality.handle_intent("particulateMatter", request_envelope, %Response{})
+    assert response.response.outputSpeech.values.value == "known市の大気汚染はokです。たいきしつ指数は40です。"
 
-    assert response_envelope.response.outputSpeech.values.value ==
-             "known市の大気汚染はokです。たいきしつ指数は40です。"
-
-    assert response_envelope.response.shouldEndSession
+    assert response.response.shouldEndSession
   end
 
   test "handle intent says it doesn't understand and ends the session for an unknown city" do
-    request_envelope = make_request(%{"city" => %{"name" => "city", "value" => "empty"}})
+    request = make_request(%{"city" => %{"name" => "city", "value" => "empty"}})
 
-    response_envelope =
-      AirQuality.handle_intent("particulateMatter", request_envelope, %Response{})
+    response = AirQuality.handle_intent("particulateMatter", request, %Response{})
 
-    assert response_envelope.response.outputSpeech.values.value == "すみませんemptyの情報を見つけられませんでした。"
-    refute response_envelope.response.shouldEndSession
+    assert response.response.outputSpeech.values.value == "すみませんemptyの情報を見つけられませんでした。"
+    refute response.response.shouldEndSession
   end
 
   test "handle_session_ended creates ignored response" do
     expected = %Response{}
-    actual = AirQuality.handle_session_ended(%Request{}, expected)
+    actual = AirQuality.handle_session_ended(nil, expected)
     assert expected == actual
   end
 
   defp make_request(slots) do
-    %Request{
-      request: %Request.Request{
-        intent: %Request.Intent{
-          name: "particulateMatter",
-          slots: slots
-        }
-      }
+    %{
+      "request" => %{"intent" => %{"name" => "particulateMatter", "slots" => slots}},
+      "session" => %{"sessionAttributes" => %{"foo" => "bar"}},
+      "context" => %{"System" => %{"application" => %{"applicationId" => "test_app_id"}}}
     }
   end
 end
