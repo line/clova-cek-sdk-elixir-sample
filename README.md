@@ -7,7 +7,10 @@ Example Clova Extension using the Clova SDK.
 The [router](lib/air_quality/router.ex) uses a series of plugs, and simply returns the connection object.
 
 ```
-  plug Plug.Parsers, parsers: [Clova.Parser]
+  plug Plug.Parsers,
+    parsers: [:json],
+    json_decoder: Poison,
+    body_reader: Clova.CachingBodyReader.spec()
   plug Clova.Validator, app_id: "com.line-apps.air_quality"
   plug Clova.Dispatcher, dispatch_to: AirQuality
   plug :match
