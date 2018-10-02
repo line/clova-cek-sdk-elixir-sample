@@ -4,16 +4,12 @@ defmodule AirQuality.Router do
 
   plug Plug.Logger
 
-  plug Plug.Parsers,
-    parsers: [:json],
-    json_decoder: Poison,
-    body_reader: Clova.CachingBodyReader.spec()
-
-  plug Clova.Validator,
+  plug Clova.SkillPlug,
+    dispatch_to: AirQuality,
     app_id: "com.line-apps.air_quality",
+    json_module: Poison,
     force_signature_valid: Application.get_env(:air_quality, :force_signature_valid)
 
-  plug Clova.Dispatcher, dispatch_to: AirQuality
   plug :match
   plug :dispatch
 

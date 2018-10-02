@@ -19,7 +19,7 @@ defmodule AirQuality do
 
         {:ok, aqicn = %AICQN{}} ->
           explanation =
-            case session_attributes(request)["detailedMode"] do
+            case get_session_attributes(request)["detailedMode"] do
               true -> aqicn.implications
               _ -> aqicn.level
             end
