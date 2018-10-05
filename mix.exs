@@ -22,9 +22,9 @@ defmodule AirQuality.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:clova, "~> 0.4.0"},
+      {:clova, "~> 0.5.0"},
       {:cowboy, "~> 2.2"},
-      {:plug, "~> 1.5"},
+      {:plug, "~> 1.6"},
       {:poison, "~> 3.1"},
       {:httpoison, "~> 1.0"}
     ]
